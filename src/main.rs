@@ -1,11 +1,15 @@
 use std::fs::File;
 use std::io::prelude::*;
 
+mod vec;
+use vec::Vec3;
+
 fn main() -> std::io::Result<()> {
+
     println!("Saving image in ppm format.");
 
-    let image_width = 400;
-    let image_height = 400;
+    let image_width = 1000;
+    let image_height = 1000;
 
     let mut file = File::create("image.ppm")?;
     file.write_all(b"P3\n")?;
@@ -13,10 +17,8 @@ fn main() -> std::io::Result<()> {
     for j in (0..image_height).rev() {
         println!("\rScanlines remaining: {}", j);
         for i in 0..image_width {
-            let r = ((i as f64 / image_width as f64) * 255.) as i32;
-            let g = ((j as f64 / image_width as f64) * 255.) as i32;
-            let b = (0.2 * 255.) as i32;
-            file.write_all(format!("{} {} {}\n", r, g, b).as_bytes())?;
+            let v = Vec3(i as f64 / image_width as f64, j as f64 / image_height as f64, 0.2);
+            file.write_all(v.write_color().as_bytes())?;
         }
     }
 
