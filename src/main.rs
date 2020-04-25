@@ -8,13 +8,13 @@ use math::Ray;
 fn hit_sphere(center: &Vec3, radius: f64, r: &Ray) -> f64 {
     let oc = r.orig - *center;
     let a = r.dir * r.dir;
-    let b = 2. * oc * r.dir;
+    let half_b = oc * r.dir;
     let c = oc * oc - radius.powi(2);
-    let discriminant = b*b - 4.*a*c;
+    let discriminant = half_b*half_b - a*c;
     if discriminant < 0. {
         -1.
     } else {
-        (-b - discriminant.sqrt()) / (2.*a)
+        (-half_b - discriminant.sqrt()) / a
     }
 }
 
