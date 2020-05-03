@@ -90,6 +90,17 @@ impl Div<f64> for Vec3 {
     }
 }
 
+
+fn clamp(x: f64, min: f64, max: f64) -> f64 {
+    if x < min {
+        min
+    } else if x > max {
+        max
+    } else {
+        x
+    }
+}
+
 impl Vec3 {
     pub fn length_squared(&self) -> f64 {
         self.0*self.0 + self.1*self.1 + self.2*self.2
@@ -99,8 +110,13 @@ impl Vec3 {
         self.length_squared().sqrt()
     }
 
-    pub fn write_color(&self) -> String {
-        format!("{} {} {}\n", (self.0 * 255.) as i32, (self.1 * 255.) as i32, (self.2 * 255.) as i32)
+    pub fn write_color(&self, samples_per_pixel: i32) -> String {
+        let scale = 1. / samples_per_pixel as f64;
+        let r = scale * self.0;
+        let g = scale * self.1;
+        let b = scale * self.2;
+
+        format!("{} {} {}\n", (clamp(r, 0., 0.999) * 256.) as i32, (clamp(g, 0., 0.999) * 256.) as i32, (clamp(b, 0., 0.999) * 256.) as i32)
     }
 
     pub fn cross(&self, v: &Vec3) -> Vec3 {

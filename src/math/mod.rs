@@ -1,4 +1,5 @@
 mod vec;
+#[macro_use]
 mod ray;
 mod shapes;
 
