@@ -1,11 +1,13 @@
 use super::{Vec3, Ray};
+use crate::materials::{Material, Lambertian};
 
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct HitRecord {
     pub t: f64,
     pub p: Vec3,
     pub normal: Vec3,
-    front_face: bool
+    pub front_face: bool,
+    pub mat: Box<dyn Material>
 }
 
 impl HitRecord { 
@@ -15,7 +17,7 @@ impl HitRecord {
     }
 
     pub fn new() -> HitRecord {
-        HitRecord { t: 0., p: Vec3(0., 0., 0.), normal: Vec3(0., 0., 0.), front_face: false }
+        HitRecord { t: 0., p: Vec3(0., 0., 0.), normal: Vec3(0., 0., 0.), front_face: false, mat: Box::new(Lambertian::new()) }
     }
 }
 
@@ -25,7 +27,8 @@ pub trait Hittable {
 
 pub struct Sphere {
     pub center: Vec3,
-    pub radius: f64
+    pub radius: f64,
+    pub material: Box<dyn Material>,
 }
 
 impl Hittable for Sphere {
@@ -44,6 +47,7 @@ impl Hittable for Sphere {
                 rec.p = r.at(temp);
                 let outward_normal = (rec.p - self.center) / self.radius;
                 rec.set_face_normal(r, &outward_normal);
+                rec.mat = self.material.clone();
                 return true
             }
             temp = (-half_b + root) / a;
@@ -52,12 +56,14 @@ impl Hittable for Sphere {
                 rec.p = r.at(rec.t);
                 let outward_normal = (rec.p - self.center) / self.radius;
                 rec.set_face_normal(r, &outward_normal);
+                rec.mat = self.material.clone();
                 return true
             }
         }
         false
     }
 }
+
 
 pub struct HittableList {
     objs: Vec<Box<dyn Hittable>>
@@ -75,11 +81,11 @@ impl HittableList {
 
 impl Hittable for HittableList {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool {
-        let mut temp = HitRecord::new();
         let mut hit_anything = false;
         let mut closest = t_max;
 
         for obj in self.objs.iter() {
+            let mut temp = HitRecord::new();
             if (*obj).hit(r, t_min, closest, &mut temp) {
                 hit_anything = true;
                 closest = temp.t;

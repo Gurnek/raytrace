@@ -1,5 +1,6 @@
 use std::ops::{Neg, SubAssign, AddAssign, MulAssign, DivAssign, Add, Sub, Mul, Div};
 use std::fmt;
+use rand::prelude::random;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Vec3(pub f64, pub f64, pub f64);
@@ -112,9 +113,9 @@ impl Vec3 {
 
     pub fn write_color(&self, samples_per_pixel: i32) -> String {
         let scale = 1. / samples_per_pixel as f64;
-        let r = scale * self.0;
-        let g = scale * self.1;
-        let b = scale * self.2;
+        let r = (scale * self.0).sqrt();
+        let g = (scale * self.1).sqrt();
+        let b = (scale * self.2).sqrt();
 
         format!("{} {} {}\n", (clamp(r, 0., 0.999) * 256.) as i32, (clamp(g, 0., 0.999) * 256.) as i32, (clamp(b, 0., 0.999) * 256.) as i32)
     }
@@ -127,5 +128,26 @@ impl Vec3 {
 
     pub fn unit_vector(&self) -> Vec3 {
         *self / self.length()
+    }
+
+    pub fn random_vec(min: f64, max: f64) -> Vec3 {
+        Vec3(min+(max-min)*random::<f64>(), min+(max-min)*random::<f64>(), min+(max-min)*random::<f64>())
+    }
+
+    pub fn random_unit_vector() -> Vec3 {
+        let a: f64 = 2.*std::f64::consts::PI*random::<f64>();
+        let z: f64 = -1. + 2.*random::<f64>();
+        let r = (1.-z*z).sqrt();
+        Vec3(r*a.cos(), r*a.sin(), z)
+    }
+
+    pub fn random_in_unit_sphere() -> Vec3 {
+        loop {
+            let p = Vec3::random_vec(-1., 1.);
+            if p.length_squared() >= 1. {
+                continue;
+            }
+            return p;
+        }
     }
 }
