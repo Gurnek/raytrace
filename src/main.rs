@@ -9,7 +9,7 @@ mod camera;
 use camera::Camera;
 
 mod materials;
-use materials::{Lambertian, Metal};
+use materials::{Lambertian, Metal, Dielectric};
 use rand::Rng;
 
 
@@ -37,8 +37,8 @@ fn main() -> std::io::Result<()> {
 
     println!("Saving image in ppm format.");
 
-    let image_width = 2000;
-    let image_height = 1000;
+    let image_width = 600;
+    let image_height = 300;
     let samples_per_pixel = 100;
     let max_depth = 25;
 
@@ -54,10 +54,13 @@ fn main() -> std::io::Result<()> {
         center: Vec3(0., -100.5, -1.), radius: 100., material: Box::new( Lambertian { albedo: Vec3(0.8, 0.8, 0.) } )
     }));
     world.add(Box::new( Sphere {
-        center: Vec3(1., 0., -1.), radius: 0.5, material: Box::new( Metal::new(Vec3(0.8, 0.6, 0.2), 0.3) )
+        center: Vec3(1., 0., -1.), radius: 0.5, material: Box::new( Metal::new(Vec3(0.8, 0.6, 0.2), 0.) )
     }));
     world.add(Box::new( Sphere {
-        center: Vec3(-1., 0., -1.), radius: 0.5, material: Box::new( Metal::new(Vec3(0.8, 0.8, 0.8), 1.0) )
+        center: Vec3(-1., 0., -1.), radius: 0.5, material: Box::new( Dielectric::new(1.5) )
+    }));
+    world.add(Box::new( Sphere {
+        center: Vec3(-1., 0., -1.), radius: -0.45, material: Box::new( Dielectric::new(1.5) )
     }));
 
     let cam = Camera::new();
