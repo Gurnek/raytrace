@@ -150,4 +150,12 @@ impl Vec3 {
             return p;
         }
     }
+
+    pub fn random_in_unit_disk() -> Vec3 {
+        loop {
+            let p = Vec3(2.*random::<f64>() - 1., 2.*random::<f64>() - 1., 0.);
+            if p.length_squared() >= 1. {continue};
+            return p
+        }
+    }
 }

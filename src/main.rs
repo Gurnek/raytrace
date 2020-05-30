@@ -63,8 +63,13 @@ fn main() -> std::io::Result<()> {
         center: Vec3(-1., 0., -1.), radius: -0.45, material: Box::new( Dielectric::new(1.5) )
     }));
 
+    let lookfrom = Vec3(3., 3., 2.);
+    let lookat = Vec3(0., 0., -1.);
+    let vup = Vec3(0., 1., 0.);
+    let dist_to_focus = (lookfrom - lookat).length();
+    let aperture = 2.;
     let aspect_ratio = image_width as f64 / image_height as f64;
-    let cam = Camera::new(Vec3(-2., 2., 1.), Vec3(0., 0., -1.), Vec3(0., 1., 0.), std::f64::consts::PI / 9., aspect_ratio);
+    let cam = Camera::new(lookfrom, lookat, vup, std::f64::consts::PI / 9., aspect_ratio, aperture, dist_to_focus);
     let mut pixel_vals = String::from("");
     let mut rng = rand::thread_rng();
 
