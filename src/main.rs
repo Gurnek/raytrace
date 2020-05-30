@@ -63,7 +63,8 @@ fn main() -> std::io::Result<()> {
         center: Vec3(-1., 0., -1.), radius: -0.45, material: Box::new( Dielectric::new(1.5) )
     }));
 
-    let cam = Camera::new();
+    let aspect_ratio = image_width as f64 / image_height as f64;
+    let cam = Camera::new(Vec3(-2., 2., 1.), Vec3(0., 0., -1.), Vec3(0., 1., 0.), std::f64::consts::PI / 9., aspect_ratio);
     let mut pixel_vals = String::from("");
     let mut rng = rand::thread_rng();
 
