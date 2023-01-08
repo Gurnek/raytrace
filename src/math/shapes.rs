@@ -1,5 +1,7 @@
-use super::{Vec3, Ray};
-use crate::materials::{Material, Lambertian};
+use std::sync::Arc;
+
+use super::{Ray, Vec3};
+use crate::materials::{Lambertian, Material};
 
 #[derive(Clone)]
 pub struct HitRecord {
@@ -7,28 +9,38 @@ pub struct HitRecord {
     pub p: Vec3,
     pub normal: Vec3,
     pub front_face: bool,
-    pub mat: Box<dyn Material>
+    pub mat: Arc<dyn Material>,
 }
 
-impl HitRecord { 
+impl HitRecord {
     fn set_face_normal(&mut self, r: &Ray, outward_normal: &Vec3) {
         self.front_face = r.dir * *outward_normal < 0.;
-        self.normal = if self.front_face {*outward_normal} else {-*outward_normal};
+        self.normal = if self.front_face {
+            *outward_normal
+        } else {
+            -*outward_normal
+        };
     }
 
     pub fn new() -> HitRecord {
-        HitRecord { t: 0., p: Vec3(0., 0., 0.), normal: Vec3(0., 0., 0.), front_face: false, mat: Box::new(Lambertian::new()) }
+        HitRecord {
+            t: 0.,
+            p: Vec3(0., 0., 0.),
+            normal: Vec3(0., 0., 0.),
+            front_face: false,
+            mat: Arc::new(Lambertian::new()),
+        }
     }
 }
 
-pub trait Hittable {
+pub trait Hittable: Send + Sync {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool;
 }
 
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f64,
-    pub material: Box<dyn Material>,
+    pub material: Arc<dyn Material + Send + Sync>,
 }
 
 impl Hittable for Sphere {
@@ -37,7 +49,7 @@ impl Hittable for Sphere {
         let a = r.dir * r.dir;
         let half_b = oc * r.dir;
         let c = oc * oc - self.radius.powi(2);
-        let discriminant = half_b*half_b - a*c;
+        let discriminant = half_b * half_b - a * c;
 
         if discriminant > 0. {
             let root = discriminant.sqrt();
@@ -48,7 +60,7 @@ impl Hittable for Sphere {
                 let outward_normal = (rec.p - self.center) / self.radius;
                 rec.set_face_normal(r, &outward_normal);
                 rec.mat = self.material.clone();
-                return true
+                return true;
             }
             temp = (-half_b + root) / a;
             if temp < t_max && temp > t_min {
@@ -57,16 +69,15 @@ impl Hittable for Sphere {
                 let outward_normal = (rec.p - self.center) / self.radius;
                 rec.set_face_normal(r, &outward_normal);
                 rec.mat = self.material.clone();
-                return true
+                return true;
             }
         }
         false
     }
 }
 
-
 pub struct HittableList {
-    objs: Vec<Box<dyn Hittable>>
+    objs: Vec<Box<dyn Hittable>>,
 }
 
 impl HittableList {
