@@ -45,8 +45,8 @@ fn ray_color(r: &Ray, world: &dyn Hittable, depth: i32) -> Vec3 {
 fn main() -> std::io::Result<()> {
     println!("Saving image in ppm format.");
 
-    let image_width = 3840;
-    let image_height = 2160;
+    let image_width = 600;
+    let image_height = 400;
     let samples_per_pixel = 100;
     let max_depth = 25;
 
